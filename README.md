@@ -1,6 +1,6 @@
 # Nonograma — Comparação de Algoritmos de Resolução
 
-Projeto desenvolvido individualmente em Python para resolução de puzzles Nonograma, utilizando três abordagens algorítmicas: **Backtracking, Algoritmo Genético e Método Híbrido**.
+Projeto desenvolvido em Python para resolução de puzzles Nonograma, utilizando três abordagens algorítmicas: **Backtracking, Algoritmo Genético e Método Híbrido**.
 
 ## Sobre o projeto
 
