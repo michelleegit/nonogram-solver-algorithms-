@@ -1,6 +1,23 @@
 import os
 import sys
 
+from rich.align import Align
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from rich import box
+
+console = Console()
+
+# Paleta (grey0 = preto ... grey100 = branco)
+COR_DICA     = "grey85"      # números das dicas
+COR_VAZIO    = "grey46"      # pontinho da célula vazia
+COR_CHEIO    = "on #2f5fd0"  # bloco preenchido (azul; "on" = cor de fundo)
+COR_BORDA    = "grey62"      # moldura
+COR_TITULO   = "bold white"
+COR_DESTAQUE = "cyan"        # dimensões no título
+
 # Cores e formato de texto padrão ANSI
 ANSI_RESET = "\x1b[0m"
 ANSI_BOLD = "\x1b[1m"
@@ -42,51 +59,46 @@ def letras_para_indice(letras: str) -> int:
     return num - 1
 
 def imprimeNonograma(jogo, l, c, nL, nC, maiorL, maiorC, cabecalhoL, cabecalhoC):
-    print("\n")
-    max_len_letras_l = len(indice_para_letras(l - 1))
-    largura_borda_l = max(3, max_len_letras_l + 1)
-    
-    # Cabeçalho superior (Dicas de Colunas)
+    # Largura da célula: 2 deixa quadrada; 3 se alguma dica tiver 2 dígitos
+    maior_dica = max(max(d) for d in cabecalhoL + cabecalhoC)
+    larg = max(2, len(str(maior_dica)) + 1)
+
+    grade = Table.grid(padding=0)       # tabela sem bordas
+    grade.add_column(justify="right")   # dicas das linhas
+    grade.add_column(width=2)           # espaço entre dicas e tabuleiro
+    for _ in range(c):
+        grade.add_column(justify="center", width=larg)
+
+    # Dicas das colunas (alinhadas pela base)
     for i in range(maiorC):
-        for a in range(maiorL):
-            print("   ", end="")
-        print(" " * largura_borda_l, end="")
+        linha = [Text(""), Text("")]
         for j in range(c):
-            if i - (maiorC - nC[j]) < 0:
-                print("   ", end="")
-            else:
-                print(f"{cabecalhoC[j][i - (maiorC - nC[j])]:2d} ", end="")
-        print()
-        
-    for a in range(maiorL):
-        print("   ", end="")
-    print(" " * largura_borda_l, end="")
-    
-    # Índices das colunas em formato de Letras
-    for i in range(c):
-        letra_c = indice_para_letras(i)
-        print(BG_BLACK(f"{letra_c:>2} "), end="")
-    print()
+            pos = i - (maiorC - nC[j])
+            linha.append(
+                Text(str(cabecalhoC[j][pos]), style=COR_DICA) if pos >= 0 else Text("")
+            )
+        grade.add_row(*linha)
 
-    # Cabeçalho lateral (Dicas de Linhas) e conteúdo da matriz
+    # Linhas do tabuleiro
     for i in range(l):
-        for j in range(maiorL - 1, -1, -1):
-            if nL[i] > j:
-                print(f"{cabecalhoL[i][j]:2d} ", end="")
-            else:
-                print("   ", end="")
-        
-        letra_l = indice_para_letras(i)
-        formato_borda = f"{{:>{largura_borda_l-1}s}} "
-        print(BG_BLACK(formato_borda.format(letra_l)), end="")
-
+        # reversed: o main entrega as dicas de linha invertidas
+        dicas = Text(" ".join(str(x) for x in reversed(cabecalhoL[i])), style=COR_DICA)
+        linha = [dicas, Text("")]
         for j in range(c):
-            if jogo[i][j].lower() == 'x':
-                print(BG_CYAN(" x "), end="")
+            if jogo[i][j].lower() == "x":
+                linha.append(Text(" " * larg, style=COR_CHEIO))   # preenchida
             else:
-                print(f"{jogo[i][j]:>2} ", end="")
-        print()
-    print("\n")
+                linha.append(Text("·", style=COR_VAZIO))          # vazia
+        grade.add_row(*linha)
+
+    console.print(Align.center(Panel(
+        grade,
+        title=f"[{COR_TITULO}]NONOGRAMA[/] [{COR_DESTAQUE}]{l} × {c}[/]",
+        box=box.ROUNDED,
+        border_style=COR_BORDA,
+        padding=(0, 3),
+        expand=False,
+    )))
 
 def mudaNonograma(jogo, r_str, c_str, l, c, oper):
     try:

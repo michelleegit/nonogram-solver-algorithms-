@@ -1,43 +1,48 @@
-# Nonograma — Comparação de Algoritmos de Resolução
+# Nonogram Solver — Comparação de Algoritmos
 
 Projeto desenvolvido em Python para resolução de puzzles Nonograma, utilizando três abordagens algorítmicas: **Backtracking, Algoritmo Genético e Método Híbrido**.
 
+Projeto desenvolvido em Python para resolução de puzzles **Nonograma**, utilizando três abordagens algorítmicas: Backtracking, Algoritmo Genético e Método Híbrido.
+
+O objetivo é implementar e comparar diferentes estratégias computacionais aplicadas a um problema de satisfação de restrições e otimização combinatória.
+
 ## Sobre o projeto
 
-Nonograma é um puzzle lógico em que o objetivo é preencher células de uma grade de acordo com pistas numéricas posicionadas nas linhas e colunas.
+Nonograma é um puzzle lógico baseado em uma grade de células. O objetivo é identificar quais células devem ser preenchidas a partir de pistas numéricas associadas às linhas e colunas.
 
-Este projeto implementa três estratégias para resolver o problema e permite comparar seus resultados em diferentes instâncias.
+Este projeto implementa três métodos de resolução, permitindo observar diferenças entre estratégias de busca exata e métodos estocásticos.
 
 ## Algoritmos implementados
 
 ### 1. Backtracking
 
-Método de busca exata que explora possibilidades de preenchimento do tabuleiro, utilizando restrições para orientar a busca e descartar configurações inválidas.
+Método de busca exata que explora sistematicamente as possibilidades de preenchimento do tabuleiro.
+
+A implementação utiliza restrições e critérios heurísticos para orientar a escolha das configurações e descartar possibilidades inválidas, reduzindo o espaço de busca.
 
 ### 2. Algoritmo Genético
 
-Método de otimização baseado em uma população de soluções candidatas, utilizando fitness e evolução por gerações para buscar uma configuração válida.
+Método de otimização estocástico inspirado na evolução biológica.
 
-Por ser um método estocástico, não garante encontrar a solução em todas as execuções.
+Trabalha com uma população de soluções candidatas, aplicando mecanismos como seleção, cruzamento e mutação para buscar configurações que satisfaçam as restrições do problema.
+
+Por sua natureza estocástica, não garante encontrar uma solução exata em todas as execuções.
 
 ### 3. Método Híbrido
 
-Combina as duas abordagens anteriores:
+Combina o Algoritmo Genético com o Backtracking, buscando aproveitar características complementares das duas abordagens.
 
-- **Algoritmo Genético:** realiza a busca inicial por uma solução candidata.
-- **Backtracking:** executa o refinamento da solução.
+O Algoritmo Genético realiza a busca inicial. Caso não encontre uma solução exata, o Backtracking é utilizado na etapa seguinte para tentar encontrar uma solução válida.
 
-O objetivo é combinar a exploração do espaço de busca com a capacidade de busca exata.
+## Tecnologias e conceitos
 
-## Tecnologias utilizadas
-
-- Python
+- Python 3
+- Rich — interface e apresentação no terminal
 - Algoritmos de busca
-- Backtracking
+- Backtracking e recursividade
 - Algoritmos Genéticos
+- Heurísticas de busca
 - Otimização combinatória
-
-O projeto utiliza exclusivamente bibliotecas da biblioteca padrão do Python, sem dependências externas identificadas.
 
 ## Estrutura do projeto
 
@@ -48,37 +53,58 @@ Nonograma/
 │   ├── nonogram_10x10.txt
 │   ├── nonogram_20x20.txt
 │   └── ...
+├── screenshots/
+│   └── backtracking.png
 ├── generator.py
 ├── main.py
 ├── metodos.py
 ├── metricas.py
 ├── tabuleiro.py
+├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
 
-## Como executar
+### Principais arquivos
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `main.py` | Inicialização e fluxo principal do programa |
+| `metodos.py` | Implementação dos algoritmos de resolução |
+| `metricas.py` | Cálculo e organização das métricas |
+| `tabuleiro.py` | Manipulação e exibição do tabuleiro |
+| `generator.py` | Geração de instâncias |
+| `instancias/` | Arquivos de entrada dos Nonogramas |
+| `screenshots/` | Capturas de tela do programa |
+
+## Instalação e execução
 
 ### Pré-requisitos
 
-- Python 3 instalado.
-- Git (opcional, para clonar o repositório).
+- Python 3.8 ou superior.
+- Git, para clonar o repositório.
 
-### Execução
-
-Clone o repositório:
+### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/michelleegit/nonograma.git
+git clone https://github.com/michelleegit/nonogram-solver-algorithms-.git
 ```
 
-Entre na pasta:
+### 2. Acessar a pasta do projeto
 
 ```bash
-cd nonograma
+cd nonogram-solver-algorithms-
 ```
 
-Execute o programa informando uma instância:
+### 3. Instalar as dependências
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+### 4. Executar o programa
+
+Para iniciar com uma instância específica:
 
 ```bash
 python3 main.py instancias/nonogram_5x5.txt
@@ -90,17 +116,25 @@ Também é possível executar sem argumentos:
 python3 main.py
 ```
 
-Nesse caso, o programa solicitará o caminho do arquivo.
+Nesse caso, o programa solicitará o caminho do arquivo de entrada.
 
-Após carregar o tabuleiro, selecione uma das opções:
+### 5. Selecionar o algoritmo
+
+Após carregar a instância, o usuário poderá escolher:
 
 1. Backtracking
 2. Algoritmo Genético
 3. Método Híbrido
 
+## Demonstração
+
+### Backtracking — Instância 15×15
+
+![Execução do algoritmo Backtracking](screenshots/backtracking.png)
+
 ## Resultados experimentais
 
-Foram realizados testes com instâncias de diferentes dimensões.
+Foram realizados testes com instâncias de diferentes dimensões, permitindo observar o comportamento dos três algoritmos.
 
 | Instância | Algoritmo | Tempo (s) | Acurácia | Resultado |
 |---|---|---:|---:|---|
@@ -114,15 +148,25 @@ Foram realizados testes com instâncias de diferentes dimensões.
 | 20×20 | Genético | 14,2668 | 55% | Melhor aproximação |
 | 20×20 | Híbrido | 3,0871 | 100% | Resolvido |
 
-*Observação: os tempos correspondem às execuções realizadas no ambiente de desenvolvimento. Os resultados do Algoritmo Genético e do Método Híbrido podem variar entre execuções devido à natureza estocástica desses métodos. Os valores apresentados não representam médias de múltiplas execuções.*
+*Observação: os tempos correspondem a execuções individuais realizadas no ambiente de desenvolvimento. Não representam médias de múltiplas execuções. Os resultados do Algoritmo Genético e do Método Híbrido podem variar devido à natureza estocástica dos métodos.*
 
 ## Análise dos resultados
 
-Os testes demonstraram diferenças de desempenho entre as estratégias.
+Os experimentos evidenciaram diferenças no comportamento das estratégias implementadas.
 
-- O Backtracking apresentou excelente desempenho nas instâncias menores e resolveu a instância 20×20 em aproximadamente 2,36 segundos.
-- O Algoritmo Genético encontrou soluções nas instâncias 5×5 e 10×10, mas não atingiu uma solução exata na instância 20×20 dentro do limite de gerações estabelecido.
-- O Método Híbrido resolveu todas as instâncias testadas, incluindo a 20×20, na qual o Algoritmo Genético isolado não encontrou a solução.
+- **Backtracking:** apresentou excelente desempenho nas instâncias menores e resolveu a instância 20×20 em aproximadamente 2,36 segundos.
+- **Algoritmo Genético:** encontrou soluções exatas nas instâncias 5×5 e 10×10. Na instância 20×20, alcançou uma aproximação com 55% de acurácia, sem encontrar a solução exata dentro do limite de gerações utilizado.
+- **Método Híbrido:** resolveu todas as instâncias apresentadas, incluindo a 20×20, na qual o Algoritmo Genético isolado não encontrou uma solução exata.
 
-Os resultados indicam que a combinação das estratégias pode ser vantajosa em determinadas instâncias, embora sejam necessários experimentos adicionais para estabelecer conclusões gerais sobre desempenho.
+Os resultados sugerem que a combinação de estratégias pode ser vantajosa em determinadas instâncias. Entretanto, são necessários experimentos adicionais para estabelecer conclusões gerais sobre desempenho e escalabilidade.
 
+## Objetivos de aprendizagem
+
+O desenvolvimento deste projeto envolveu a aplicação prática de conceitos de:
+
+- Projeto e implementação de algoritmos.
+- Busca em espaços de estados.
+- Satisfação de restrições.
+- Otimização combinatória.
+- Computação evolutiva.
+- Comparação experimental de algoritmos.

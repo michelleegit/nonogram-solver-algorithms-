@@ -1,11 +1,16 @@
 import sys
 import os
 
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from rich.align import Align
+from rich import box
+
 from tabuleiro import (
-    limpar_tela, imprimeNonograma, MAGENTA, YELLOW, BOLD, RED, BG_GREEN
+    limpar_tela, imprimeNonograma, console, MAGENTA, BOLD, RED
 )
 from metodos import resolver_backtracking, resolver_genetico, resolver_hibrido
-
 
 def exibir_resultado(
     jogo: list,
@@ -23,60 +28,84 @@ def exibir_resultado(
     # 1. Limpa a tela e exibe a identidade visual
     limpar_tela()
     menu()
-    
-    # 2. Imprime o tabuleiro completamente resolvido
-    imprimeNonograma(jogo, linha, coluna, nL, nC, maiorL, maiorC, cabecalhoL_visual, cabecalhoC)
-    print(BOLD("\nPROCESSO FINALIZADO!"))
-    
-    # 3. Cabeçalho do Relatório de Métricas
-    print(f"\n{BOLD('MÉTRICAS — ' + algoritmo.upper())}")
-    print("─" * 52)
 
-    # Se o solver retornar o dicionário correto com as métricas
+    # 2. Tabuleiro completamente resolvido
+    imprimeNonograma(jogo, linha, coluna, nL, nC, maiorL, maiorC,
+                     cabecalhoL_visual, cabecalhoC)
+
+    console.print(Align.center(Text("PROCESSO FINALIZADO!", style="bold white")))
+    console.print()
+
+    # 3. Métricas em duas colunas: nome à esquerda, valor à direita
+    metricas = Table.grid(padding=(0, 3))
+    metricas.add_column(justify="left", style="grey62")
+    metricas.add_column(justify="right", style="bold white")
+
+    aviso = None
     if isinstance(resultado_solver, dict) and "metrics" in resultado_solver:
-        metrics_data = resultado_solver["metrics"]
-        
-        # Imprime cada chave e valor perfeitamente alinhados à esquerda e direita
-        for chave, valor in metrics_data.items():
-            print(f"  {chave:<26} {valor:>20}")
-            
+        for chave, valor in resultado_solver["metrics"].items():
+            metricas.add_row(Text(str(chave)), Text(str(valor)))
     else:
-        # Fallback caso o solver ainda esteja retornando apenas True/False (o seu caso atual)
+        # Fallback: o solver ainda devolve só True/False
         status_txt = "Sim" if resultado_solver is True else "Não"
-        print(f"  {'Algoritmo':<26} {algoritmo:>20}")
-        print(f"  {'Dimensões':<26} {f'{linha}x{coluna}':>20}")
-        print(f"  {'Resolvido':<26} {status_txt:>20}")
-        print("─" * 52)
-        print(RED("  ⚠ Atenção: Modifique o retorno do seu solver em 'metodos.py'"))
-        print(RED("  para devolver o dicionário gerado pelo Metrics.build()."))
-        
-    print("─" * 52)
-    print()
+        metricas.add_row(Text("Algoritmo"), Text(algoritmo))
+        metricas.add_row(Text("Dimensões"), Text(f"{linha}x{coluna}"))
+        metricas.add_row(Text("Resolvido"), Text(status_txt))
+        aviso = Text("O solver ainda não devolve as métricas completas "
+                     "(Metrics.build()).", style="grey50")
 
+    console.print(Align.center(Panel(
+        metricas,
+        title=f"[bold white]MÉTRICAS — {algoritmo.upper()}[/]",
+        box=box.ROUNDED,
+        border_style="grey62",
+        padding=(0, 3),
+        expand=False,
+    )))
+    if aviso:
+        console.print(Align.center(aviso))
+    console.print()
 
 def menu():
-    # Exibe a Logo ASCII 
-    print(MAGENTA("""
-    ███╗   ██╗ ██████╗ ███╗   ██╗ ██████╗  ██████╗ ██████╗  █████╗ ███╗   ███╗ █████╗
-    ████╗  ██║██╔═══██╗████╗  ██║██╔═══██╗██╔════╝ ██╔══██╗██╔══██╗████╗ ████║██╔══██╗
-    ██╔██╗ ██║██║   ██║██╔██╗ ██║██║   ██║██║   ███╗██████╔╝███████║██╔████╔██║███████║
-    ██║╚██╗██║██║   ██║██║╚██╗██║██║   ██║██║   ██║██╔══██╗██╔══██║██║╚██╔╝██║██╔══██║
-    ██║ ╚████║╚██████╔╝██║ ╚████║╚██████╔╝╚██████╔╝██║  ██║██║  ██║██║ ╚═╝ ██║██║  ██║
-    ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝   ╚═╝╚═╝     ╚═╝╚═╝   ╚═╝
-    """))
+    cabecalho = Text.from_markup(
+        "[bold white]NONOGRAMA[/bold white]\n"
+        "[grey62]Backtracking • Algoritmo Genético • Híbrido[/grey62]",
+        justify="center",
+    )
+    console.print()
+    console.print(Align.center(Panel(
+        cabecalho,
+        border_style="grey62",
+        box=box.ROUNDED,
+        padding=(0, 2),     # sem espaço vertical interno
+        expand=False,
+    )))
 
 
 def comandos(jogo, linha, coluna, nL, nC, maiorL, maiorC, cabecalhoL_visual, cabecalhoC):
     while True:
-        print(BG_GREEN("                      MÉTODOS DE RESOLUÇÃO                      ".center(75)))
-        print()
-        print(f"{'Opção':<12}                                       Descrição")
-        print("-"*75)
-        print(f"{MAGENTA('1'):<12}{'Backtracking ':<32}  Busca exata recursiva com podas heurísticas")
-        print(f"{YELLOW('2'):<12}{'Algoritmo Genético':<32}  Evolução populacional por busca estocástica")
-        print(f"{BOLD('3'):<12}{'Método Híbrido':<32} Processamento AG → Refinamento por Backtracking")
-        print(f"{BOLD('sair'):<12}                                 {'Encerra o Programa':<32}")
-        print()
+        tabela = Table(
+            title="[bold white]MÉTODOS DE RESOLUÇÃO[/bold white]",
+            box=box.ROUNDED,
+            border_style="grey62",
+            header_style="bold white",
+            expand=False,
+        )
+        tabela.add_column("Opção", justify="center", style="bold white", width=8)
+        tabela.add_column("Método", style="white", min_width=20)
+        tabela.add_column("Descrição", style="grey62")
+
+        tabela.add_row("1", "Backtracking",
+                       "Busca exata recursiva com podas heurísticas")
+        tabela.add_row("2", "Algoritmo Genético",
+                       "Evolução populacional por busca estocástica")
+        tabela.add_row("3", "Método Híbrido",
+                       "Processamento AG → Refinamento por Backtracking")
+        tabela.add_row("sair", "Encerrar",
+                       "Encerra o programa")
+
+        console.print(Align.center(tabela))
+        console.print()
 
         entrada = input(BOLD("Escolha uma opção (1, 2, 3) ou digite 'sair': ")).strip().lower()
         
